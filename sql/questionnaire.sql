@@ -30,9 +30,6 @@ create table if not exists historic(
 	foreign key (questionnaire) references questionnaire(id) on delete RESTRICT on update cascade
 ) engine InnoDB, default character set utf8;
 
-
-
-
 create table if not exists answerByquestion(
 	question integer,
 	answer integer default 1,
