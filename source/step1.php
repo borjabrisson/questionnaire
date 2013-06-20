@@ -43,7 +43,7 @@ class questionnaire_step1 extends bas_frmx_form{
 	}
 	private function createGrid($caption){
 		
-		
+		$this->buttonbar = new bas_frmx_buttonbar();
 		$answer = "select caption,answerByquestion.level from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.level = {$this->level} order by answerByquestion.level asc";
 		$options = array();
 		$ds = new bas_sql_myqrydataset($answer);
@@ -55,7 +55,7 @@ class questionnaire_step1 extends bas_frmx_form{
 		$ds->close();
 
 		// id,obj,y,x,width,height
-		$frame= new bas_frmx_gridFrame("buttons", array("Cuestionario"));
+		$frame= new bas_frmx_gridFrame("questions", array("Cuestionario"));
 		$frame->setHeader($caption);
 		
 		$question= new bas_frmx_panelGrid("items",array('width'=>count($options),'height'=>1));
@@ -71,6 +71,8 @@ class questionnaire_step1 extends bas_frmx_form{
 	}
 	
 	private function createCard($caption){
+		$this->buttonbar->addframeAction('aceptar','questions');
+		
 		$card=new bas_frmx_cardframe('questions');
 		
 		$card->query->add('temp');
@@ -86,8 +88,9 @@ class questionnaire_step1 extends bas_frmx_form{
 		parent::OnAction($action,$data);
 		switch($action){
 			case 'close': return array('close');
-			case 'edit':
-
+			case 'aceptar':
+					$this->createFrame();
+					$this->OnPaint('jscommand');
 				break;
 			case 'prevGrid':case 'nextGrid':
 				$this->frames[$data["idFrame"]]->OnAction($action,$data);
@@ -95,9 +98,12 @@ class questionnaire_step1 extends bas_frmx_form{
 				
 				$this->OnPaint("jscommand");
 				break;
-			case 'select_item': 
-				$msg= new bas_html_messageBox(false, 'Item!!',$data["item"]);
-				echo $msg->jscommand();
+			case 'sel_answer': 
+				$this->createFrame();
+				$this->OnPaint('jscommand');
+				
+// 				$msg= new bas_html_messageBox(false, 'Item!!',$data["item"]);
+// 				echo $msg->jscommand();
 				
 				break;
 			case 'select_group':
