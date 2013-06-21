@@ -3,6 +3,7 @@ class questionnaire_step1 extends bas_frmx_form{
 	private $level=0;
 	private $maxlevel=1;
 	private $questionnaire=1;
+	private $currentQuestion=0;
 	private $answers = array();
 	
 	public function OnLoad(){
@@ -12,7 +13,7 @@ class questionnaire_step1 extends bas_frmx_form{
 		$this->toolbar= new bas_frmx_toolbar('close');
 		$this->title= 'The estheticien';
 		
-		$qry_maxlevel = "select count(*) as maxlevel from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} ";
+		$qry_maxlevel = "select max(level) as maxlevel from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} ";
 		$qry= new bas_sql_myquery($qry_maxlevel);
 		
 		$this->maxlevel = $qry->result['maxlevel'];
@@ -25,9 +26,10 @@ class questionnaire_step1 extends bas_frmx_form{
 	}
 
 	private function createFrame(){
-		$answer = "select questions.question as question,questionByquestionnaire.level as level from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} and questionByquestionnaire.level > {$this->level} order by level asc limit 1";
+		$answer = "select questionByquestionnaire.question as idquestion,questions.question as question,questionByquestionnaire.level as level from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} and questionByquestionnaire.level > {$this->level} order by level asc limit 1";
 		$qry= new bas_sql_myquery($answer);
 		$this->level = $qry->result["level"];
+		$this->currentQuestion = $qry->result["idquestion"];
 		$caption = $qry->result["question"];
 	
 		$answer = "select answer as answer from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.level = {$this->level} limit 1";
@@ -84,13 +86,36 @@ class questionnaire_step1 extends bas_frmx_form{
 
 	}
 	
+	private function sendForm(){
+		global $_LOG ;
+// 		$answers = $this->answers;
+// 		$_LOG->debug("Almacenado",$this->answers);
+		foreach($this->answers as $item){
+			$_LOG->log("Pregunta {$item["id"]}, Respuesta: {$item["answer"]}");
+		}
+	}
+	
+	
+	private function insertItem($data){
+		$this->answers [] = array('id'=>$this->currentQuestion,'answer'=>$data);
+		if ($this->level == $this->maxlevel){ 
+			$this->sendForm();
+			return true;
+		}
+		else{
+			$this->createFrame();
+			$this->OnPaint('jscommand');
+			return false;
+		}
+	}
+	
 	public function OnAction($action, $data=""){
 		parent::OnAction($action,$data);
 		switch($action){
 			case 'close': return array('close');
 			case 'aceptar':
-					$this->createFrame();
-					$this->OnPaint('jscommand');
+					if ($this->insertItem($data["question"]) ) return array('close');
+
 				break;
 			case 'prevGrid':case 'nextGrid':
 				$this->frames[$data["idFrame"]]->OnAction($action,$data);
@@ -99,8 +124,7 @@ class questionnaire_step1 extends bas_frmx_form{
 				$this->OnPaint("jscommand");
 				break;
 			case 'sel_answer': 
-				$this->createFrame();
-				$this->OnPaint('jscommand');
+				 if ($this->insertItem($data["item"]) ) return array('close');
 				
 // 				$msg= new bas_html_messageBox(false, 'Item!!',$data["item"]);
 // 				echo $msg->jscommand();
