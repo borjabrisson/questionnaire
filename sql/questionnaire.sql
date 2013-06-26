@@ -50,10 +50,3 @@ create table if not exists answerRecord(
 ) engine InnoDB, default character set utf8;
 
 
-
-
-
-
-
-
-

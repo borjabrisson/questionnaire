@@ -11,7 +11,7 @@ class questionnaire_step1 extends bas_frmx_form{
 		
 		
 		$this->toolbar= new bas_frmx_toolbar('close');
-		$this->title= 'The estheticien';
+		$this->title= 'Cuestionario';
 		
 		$qry_maxlevel = "select max(level) as maxlevel from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} ";
 		$qry= new bas_sql_myquery($qry_maxlevel);
