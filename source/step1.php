@@ -11,7 +11,7 @@ class questionnaire_step1 extends bas_frmx_form{
 		
 		
 		$this->toolbar= new bas_frmx_toolbar('close');
-		$this->title= 'The estheticien';
+		$this->title= 'Cuestionario';
 		
 		$qry_maxlevel = "select max(level) as maxlevel from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} ";
 		$qry= new bas_sql_myquery($qry_maxlevel);
@@ -86,15 +86,37 @@ class questionnaire_step1 extends bas_frmx_form{
 	
 	private function sendForm(){
 		global $_LOG ;
-// 		$answers = $this->answers;
-// 		$_LOG->debug("Almacenado",$this->answers);
-		foreach($this->answers as $item){
-			$_LOG->log("Pregunta {$item["id"]}, Respuesta: {$item["answer"]}");
+		$proc = new bas_sqlx_connection();
+		$proc->call("hist","create",array($this->questionnaire));
+		if ($proc->success){
+// 			$hist = $proc->message;
+			foreach($this->answers as $item){
+				$proc->call("hist","answerInsert",array($item["id"],$item["answer"]));
+				if (! $proc->success){
+					break;
+				}
+	// 			$_LOG->log("Pregunta {$item["id"]}, Respuesta: {$item["answer"]}");
+			}
+			if ($proc->success){
+				$proc->commit();
+			}
+			else{
+				$proc->rollback();
+				$msg= new bas_html_messageBox(false, 'Atención!',$proc->message);
+				echo $msg->jscommand();
+			}
 		}
+		else{
+			$proc->rollback();
+			$msg= new bas_html_messageBox(false, 'Atención!',$proc->message);
+			echo $msg->jscommand();
+		}
+		$proc->close();
 	}
 	
 	
-	private function insertItem($data){
+	private function insertItem($data=""){
+		if (is_null($data)) $data = "";
 		$this->answers [] = array('id'=>$this->currentQuestion,'answer'=>$data);
 		if ($this->level == $this->maxlevel){ 
 			$this->sendForm();
@@ -121,7 +143,8 @@ class questionnaire_step1 extends bas_frmx_form{
 				
 				$this->OnPaint("jscommand");
 				break;
-			case 'sel_answer': 
+			case 'sel_answer':
+			
 				 if ($this->insertItem($data["item"]) ) return array('close');
 				
 // 				$msg= new bas_html_messageBox(false, 'Item!!',$data["item"]);

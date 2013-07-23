@@ -8,6 +8,9 @@ source questionnaire.sql
 select 'Loading data' as step;
 source questionnaire.data.sql.sql;
 
+select 'Procedure' as step;
+source questionnaire.procedure.sql;
+
 -- select 'Configuring imywa' as step;
 -- source questionnaire.imywa.sql;
 

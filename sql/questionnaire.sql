@@ -20,16 +20,6 @@ create table if not exists questionByquestionnaire(
 	foreign key (question) references questions(id) on delete RESTRICT on update cascade
 ) engine InnoDB, default character set utf8;
 
-
-create table if not exists historic(
-	hist integer AUTO_INCREMENT primary key,
-	questionnaire integer,
-	creationTime datetime,
-	user varchar(15),
-	location varchar(15),
-	foreign key (questionnaire) references questionnaire(id) on delete RESTRICT on update cascade
-) engine InnoDB, default character set utf8;
-
 create table if not exists answerByquestion(
 	question integer,
 	answer integer default 1,
@@ -40,6 +30,15 @@ create table if not exists answerByquestion(
 ) engine InnoDB, default character set utf8;
 
 
+create table if not exists historic(
+	hist integer AUTO_INCREMENT primary key,
+	questionnaire integer,
+	creationTime datetime,
+	user varchar(15),
+	location varchar(15),
+	foreign key (questionnaire) references questionnaire(id) on delete RESTRICT on update cascade
+) engine InnoDB, default character set utf8;
+
 create table if not exists answerRecord(
 	hist integer ,
 	question integer,
@@ -48,12 +47,5 @@ create table if not exists answerRecord(
 	foreign key (hist) references historic(hist) on delete RESTRICT on update cascade,
 	foreign key (question) references questions(id) on delete RESTRICT on update cascade
 ) engine InnoDB, default character set utf8;
-
-
-
-
-
-
-
 
 
