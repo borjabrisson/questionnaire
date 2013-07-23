@@ -17,8 +17,6 @@ class questionnaire_step1 extends bas_frmx_form{
 		$qry= new bas_sql_myquery($qry_maxlevel);
 		
 		$this->maxlevel = $qry->result['maxlevel'];
-		
-		
 
 		$this->buttonbar = new bas_frmx_buttonbar();
 

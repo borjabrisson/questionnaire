@@ -10,6 +10,11 @@ class questionnaire_start extends bas_frmx_form{
 		
 		$this->addFrame($menu);
 		
+		$menu= new bas_frmx_menu("mainQuestionnaire","Main de Cuestionarios");
+		$menu->add('Lista de cuestionarios', 'questionnaire_questionnaireList');
+		$menu->add('Lista de preguntas', 'questionnaire_questionList');
+		$this->addFrame($menu);
+		
 	}
 	
 	public function OnAction($action, $data){
