@@ -25,6 +25,7 @@ class questionnaire_questionCard extends bas_frmx_form{
 		$card->addComponent('Pregunta', 1, 1, 2, 2, 'question');
 		$card->addComponent('Pregunta', 3, 1, 2, 2, 'multivalue');	
 		
+		$card->createRecord();
 		$this->addFrame($card);
 	}
 	
@@ -50,30 +51,14 @@ class questionnaire_questionCard extends bas_frmx_form{
                     echo $msg->jscommand();
                 }  
 				break;
-			case 'newItem': 
-				$this->type="item";			$this->title = "Nuevo Artículo"; 
-				$this->createItemCard();
+			case 'new': 
+				$this->title = "Nueva Pregunta"; 
 				$this->frames["ficha_pregunta"]->SetMode("new");
 				break;
-			case 'newGroup':
-				$this->type="group";		$this->title = "Nuevo Grupo"; 
-				$this->createGroupCard();
-				$this->frames["ficha_pregunta"]->SetMode("new");
-				break;
-			case 'editItem':
-				$this->type="item";
-				$this->title = "Editar Artículo"; 
-
-				$this->createItemCard();		$this->frames["ficha_pregunta"]->SetMode("edit");
-				$this->frames["ficha_pregunta"]->query->setfilterRecord($data);
-                $this->frames["ficha_pregunta"]->setRecord();
+			case 'edit':			
+				$this->title = "Editar Pregunta"; 
 				
-				break;	
-			case 'editGroup':			
-				$this->type="group";
-				$this->title = "Editar Grupo"; 
-				
-				$this->createGroupCard();		$this->frames["ficha_pregunta"]->SetMode("edit");
+				$this->frames["ficha_pregunta"]->SetMode("edit");
 				$this->frames["ficha_pregunta"]->query->setfilterRecord($data);
 				$this->frames["ficha_pregunta"]->setRecord();
 				

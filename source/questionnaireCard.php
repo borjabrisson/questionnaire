@@ -18,7 +18,7 @@ class questionnaire_questionnaireCard extends bas_frmx_form{
 		$card->query->addcol('id','Identificador', 'questionnaire',true);
 		$card->query->addcol('description','Descripción','questionnaire',false);
 
-		$card->addComponent('Cuestionario', 1, 1, 2, 2, 'description');
+		$card->addComponent('Cuestionario', 1, 1, 3, 1, 'description');
 			
 		$card->createRecord();
 		$this->addFrame($card);
