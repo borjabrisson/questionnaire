@@ -1,6 +1,6 @@
 <?php
-class questionnaire_questionList extends bas_frmx_form {
-
+class questionnaire_answerList extends bas_frmx_form {
+	private $question;
 	public function OnLoad(){
 		parent::OnLoad();
 		
@@ -10,29 +10,26 @@ class questionnaire_questionList extends bas_frmx_form {
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('answers',"Respuestas");	$this->buttonbar->addAction('borrar');
-		$this->buttonbar->addAction('nuevo');	$this->buttonbar->addAction('editar');
-		$this->buttonbar->addAction('salir');
+		$this->buttonbar->addAction('borrar');$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');	$this->buttonbar->addAction('salir');
 		
+		$list = new bas_frmx_listframe('lista_respuestas',"Preguntas Existentes");
 		
-		$list = new bas_frmx_listframe('lista_preguntas',"Preguntas Existentes");
+		$list->query->add('answerByquestion');
+		$list->query->setkey(array('question','answer'));
 		
-		$list->query->add('questions');
-		$list->query->setkey(array('id'));
-		
-		$list->query->addcol('id','Identificador', 'questions',true);
-		$list->query->addcol('question','Pregunta','questions',false);
+		$list->query->addcol('question','Pregunta','answerByquestion',false);
+		$list->query->addcol('answer','Respuesta','answerByquestion',false);
 
-		$list->query->addcol('language','Idioma','questions',false);
-		$list->query->addcol('multivalue','Multievaluada','questions',false,"","boolean");
+		$list->query->addcol('caption','Caption','answerByquestion',false);
+		$list->query->addcol('level','orden','answerByquestion',false,"","number");
 
 		
-		$width=100; $height=1;
+		$width=300; $height=1;
 		
-		$list->addComponent($width, $height,"id");
-		$list->addComponent($width, $height,"question");		
-		$list->addComponent($width, $height,"multivalue");
-		
+// 		$list->addComponent($width, $height,"question");
+// 		$list->addComponent($width, $height,"answer");
+		$list->addComponent($width, $height,"caption");
+		$list->addComponent($width, $height,"level");
 
 		
 		//$list->autoSize(); # El autosize es incompatible con el loadconfig.
@@ -40,7 +37,7 @@ class questionnaire_questionList extends bas_frmx_form {
 		$this->addFrame($list);
 	}
 	public function OnRefresh(){
-        $this->frames['lista_preguntas']->Reload();
+        $this->frames['lista_respuestas']->Reload();
     }
 	
 	
@@ -54,7 +51,7 @@ class questionnaire_questionList extends bas_frmx_form {
 		$query->addcol('description','Descripción','item',false);
 		$query->addcol('price','Precio','item',false);
         
-        $filters = $this->frames["lista_preguntas"]->query->getfilters();
+        $filters = $this->frames["lista_respuestas"]->query->getfilters();
         $query->setfilterRecord($filters);    
 
 		return $query;
@@ -64,19 +61,19 @@ class questionnaire_questionList extends bas_frmx_form {
 	public function OnAction($action, $data){
 		if ($ret = parent::OnAction($action,$data)) return $ret;
 		if (isset($data['selected'])){
-			$this->frames["lista_preguntas"]->setSelected($data['selected']);
+			$this->frames["lista_respuestas"]->setSelected($data['selected']);
 		}
 		switch ($action){
             case 'salir': case 'cancelar':
                 return array("close");
             break;
 			case 'nuevo':
-                return array('open','questionnaire_questionCard',"new");
+                return array('open','questionnaire_answerCard',"new",array("question"=>$this->question));
             break;
             case 'editar':
                 if (isset($data['selected'])){
-                    $aux = $this->frames["lista_preguntas"]->getkeySelected();
-                    return array('open','questionnaire_questionCard','edit',$aux);
+                    $aux = $this->frames["lista_respuestas"]->getkeySelected();
+                    return array('open','questionnaire_answerCard','edit',$aux);
                 }
                 else{
                     $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
@@ -86,11 +83,11 @@ class questionnaire_questionList extends bas_frmx_form {
             
             case 'borrar':
 				 if (isset($data['selected'])){
-					$data = $this->frames["lista_preguntas"]->getkeySelected();
+					$data = $this->frames["lista_respuestas"]->getkeySelected();
 
-                    $proc = new bas_sql_myprocedure('question_delete', array( $data['id']));
+                    $proc = new bas_sql_myprocedure('item_delete', array( $data['item']));
 					if ($proc->success){
-						$this->frames["lista_preguntas"]->Reload(true);
+						$this->frames["lista_respuestas"]->Reload(true);
 					}
 					else{
 						$msg= new bas_html_messageBox(false, 'error', $proc->errormsg);
@@ -103,16 +100,6 @@ class questionnaire_questionList extends bas_frmx_form {
                 }
             break;
 
-            case 'answers':
-				 if (isset($data['selected'])){
-					$data = $this->frames["lista_preguntas"]->getkeySelected();
-					return array('open','questionnaire_answerList','setFilter',array("question"=>$data["id"]));
-                }
-                else{
-                    $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
-                    echo $msg->jscommand();
-                }
-            break;
 
             case 'filtro':
                 $save[] =  array('id'=> "setfilterRecord", 'type'=>'command', 'caption'=>"Aceptar", 'description'=>"guardar");
@@ -128,12 +115,13 @@ class questionnaire_questionList extends bas_frmx_form {
             break;
             
             case 'setfilterRecord':
-                $this->frames['lista_preguntas']->query->setfilterRecord($data);   
-                $this->frames['lista_preguntas']->Reload(true);
+                $this->frames['lista_respuestas']->query->setfilterRecord($data);
+                $this->frames['lista_respuestas']->Reload(true);
             break;
             case 'setFilter';
-                $this->frames['lista_preguntas']->query->setfilterRecord($data);   
-                $this->frames['lista_preguntas']->Reload();
+				$this->question = $data["question"];
+                $this->frames['lista_respuestas']->query->setfilterRecord($data);
+                $this->frames['lista_respuestas']->Reload();
             break;
             
             case "lookup":
@@ -142,7 +130,7 @@ class questionnaire_questionList extends bas_frmx_form {
             break;
             case "aceptar":
                 if (isset($data['selected'])){
-                    $aux = $this->frames["lista_preguntas"]->getSelected();
+                    $aux = $this->frames["lista_respuestas"]->getSelected();
                     return array("return","setvalues",$aux[0]);
                 }
                 else{

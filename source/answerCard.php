@@ -1,6 +1,6 @@
 <?php
-class questionnaire_questionCard extends bas_frmx_form{ 
-	private $type="item";
+class questionnaire_answerCard extends bas_frmx_form{
+	private $question;
 	public function OnLoad(){
 		parent::OnLoad();
 		
@@ -12,18 +12,18 @@ class questionnaire_questionCard extends bas_frmx_form{
 		
 		$card=new bas_frmx_cardframe('ficha_pregunta',array("Pregunta"),array("width"=>4,"height"=>3));
 		
-		$card->query->add('questions');
-		$card->query->setkey(array('id'));
-		
-		$card->query->addcol('id','Identificador', 'questions',true);
-		$card->query->addcol('question','Pregunta','questions',false);
+		$card->query->add('answerByquestion');
+		$card->query->setkey(array('question','answer'));
 
-		$card->query->addcol('language','Idioma','questions',false);
-		$card->query->addcol('multivalue','Multievaluada','questions',false,"","boolean");
+		$card->query->addcol('question','Pregunta','answerByquestion',false);
+		$card->query->addcol('answer','Respuesta','answerByquestion',false);
+
+		$card->query->addcol('caption','Caption','answerByquestion',false);
+		$card->query->addcol('level','orden','answerByquestion',false,"","number");
+
 		
-		
-		$card->addComponent('Pregunta', 1, 1, 2, 2, 'question');
-		$card->addComponent('Pregunta', 3, 1, 2, 2, 'multivalue');	
+		$card->addComponent('Pregunta', 1, 1, 2, 2, 'caption');
+		$card->addComponent('Pregunta', 3, 1, 2, 2, 'level');
 		
 		$card->createRecord();
 		$this->addFrame($card);
@@ -36,12 +36,11 @@ class questionnaire_questionCard extends bas_frmx_form{
 		switch($action){
 			case 'cancelar': return array('close');
 			case 'aceptar': 
-				$data["type"] = $this->type;
 				if(!isset($data["price"]) ) $data["price"] = null;
 				if ($this->frames['ficha_pregunta']->GetMode() == "new"){
-                     $proc = new bas_sql_myprocedure('question_new', array( $data['question'],"es","0"));
+					$proc = new bas_sql_myprocedure('answer_new', array($this->question,$data["caption"],$data["level"]));
                 }else{
-					 $proc = new bas_sql_myprocedure('question_edit', array($this->frames['ficha_pregunta']->record->original["id"],$data['question'],"es","0"));
+					$proc = new bas_sql_myprocedure('answer_edit', array($this->frames['ficha_pregunta']->record->original['question'],$this->frames['ficha_pregunta']->record->original['answer'],$data["caption"],$data["level"]));
                 }   
                 if ($proc->success){
 					return array('close');
@@ -52,7 +51,8 @@ class questionnaire_questionCard extends bas_frmx_form{
                 }  
 				break;
 			case 'new': 
-				$this->title = "Nueva Pregunta"; 
+				$this->title = "Nueva Pregunta";
+				$this->question= $data["question"];
 				$this->frames["ficha_pregunta"]->SetMode("new");
 				break;
 			case 'edit':			

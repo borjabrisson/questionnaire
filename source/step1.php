@@ -92,6 +92,7 @@ class questionnaire_step1 extends bas_frmx_form{
 // 			$hist = $proc->message;
 			foreach($this->answers as $item){
 				$proc->call("hist","answerInsert",array($item["id"],$item["answer"]));
+// 				$proc->call("hist","answerInsert",array($proc->message,$item["id"],$item["answer"]));
 				if (! $proc->success){
 					break;
 				}

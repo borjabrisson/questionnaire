@@ -34,9 +34,9 @@ class questionnaire_questionnaireCard extends bas_frmx_form{
 				$data["type"] = $this->type;
 				if(!isset($data["price"]) ) $data["price"] = null;
 				if ($this->frames['ficha_cuestionario']->GetMode() == "new"){
-                     $proc = new bas_sql_myprocedure('item_new', array( $data['item'],$data['type'],$data['itemGroup'],$data['description'],$data['price']));
+                     $proc = new bas_sql_myprocedure('questionnaire_new', array( $data['description']));
                 }else{
-					 $proc = new bas_sql_myprocedure('item_edit', array( $data['item'],$data['type'],$data['itemGroup'],$data['description'],$data['price'],$this->frames['ficha_cuestionario']->record->original["item"]));
+					 $proc = new bas_sql_myprocedure('questionnaire_edit', array($this->frames['ficha_cuestionario']->record->original["id"],$data['description']));
                 }   
                 if ($proc->success){
 					return array('close');

@@ -1,11 +1,11 @@
 create table if not exists questionnaire(
 	id integer AUTO_INCREMENT primary key,
-	description varchar(30)
+	description varchar(50)
 ) engine InnoDB, default character set utf8;
 
 create table if not exists questions(
 	id integer AUTO_INCREMENT primary key,
-	question varchar(30),
+	question varchar(60),
 	language varchar(2),
 	multivalue boolean default false
 ) engine InnoDB, default character set utf8;
