@@ -85,7 +85,7 @@ class questionnaire_answerList extends bas_frmx_form {
 				 if (isset($data['selected'])){
 					$data = $this->frames["lista_respuestas"]->getkeySelected();
 
-                    $proc = new bas_sql_myprocedure('item_delete', array( $data['item']));
+                    $proc = new bas_sql_myprocedure('answer_delete', $data);
 					if ($proc->success){
 						$this->frames["lista_respuestas"]->Reload(true);
 					}

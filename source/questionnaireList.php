@@ -10,7 +10,7 @@ class questionnaire_questionnaireList extends bas_frmx_form {
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('borrar');$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');	$this->buttonbar->addAction('salir');
+		$this->buttonbar->addAction('question',"Preguntas");$this->buttonbar->addAction('borrar');$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');	$this->buttonbar->addAction('salir');
 		
 		$list = new bas_frmx_listframe('lista_cuestionarios',"Cuestionarios Existentes");
 		
@@ -79,7 +79,7 @@ class questionnaire_questionnaireList extends bas_frmx_form {
 				 if (isset($data['selected'])){
 					$data = $this->frames["lista_cuestionarios"]->getkeySelected();
 
-                    $proc = new bas_sql_myprocedure('questionnaire_delete', array( $data['item']));
+                    $proc = new bas_sql_myprocedure('questionnaire_delete', $data);
 					if ($proc->success){
 						$this->frames["lista_cuestionarios"]->Reload(true);
 					}
@@ -117,6 +117,19 @@ class questionnaire_questionnaireList extends bas_frmx_form {
                 $this->frames['lista_cuestionarios']->Reload();
             break;
             
+            case "question":
+            
+				if (isset($data['selected'])){
+                    $aux = $this->frames["lista_cuestionarios"]->getkeySelected();
+                    return array('open','questionnaire_questionList','setQuestionnaire',array("questionnaire"=>$aux["id"]));
+                }
+                else{
+                    $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
+                    echo $msg->jscommand();
+                }
+
+            break;
+            
             case "lookup":
                 $this->buttonbar= new bas_frmx_buttonbar();
                 $this->buttonbar->addAction('aceptar'); $this->buttonbar->addAction('cancelar');
@@ -125,6 +138,40 @@ class questionnaire_questionnaireList extends bas_frmx_form {
                 if (isset($data['selected'])){
                     $aux = $this->frames["lista_cuestionarios"]->getSelected();
                     return array("return","setvalues",$aux[0]);
+                }
+                else{
+                    $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
+                    echo $msg->jscommand();
+                }
+                
+            break;
+            
+            case "recordMode":
+				$this->buttonbar= new bas_frmx_buttonbar();
+                $this->buttonbar->addAction("historic",'Ver registros');
+            break;
+            
+            case "historic":
+                if (isset($data['selected'])){
+                    $aux = $this->frames["lista_cuestionarios"]->getkeySelected();
+                    return array('open','questionnaire_recordList','init',array("questionnaire"=>$aux["id"]));
+                }
+                else{
+                    $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
+                    echo $msg->jscommand();
+                }
+                
+            break;
+            
+             case "executeMode":
+				$this->buttonbar= new bas_frmx_buttonbar();
+                $this->buttonbar->addAction("execute",'Realizar');
+            break;
+            
+            case "execute":
+                if (isset($data['selected'])){
+                    $aux = $this->frames["lista_cuestionarios"]->getkeySelected();
+                    return array('open','questionnaire_step1','init',array("questionnaire"=>$aux["id"]));
                 }
                 else{
                     $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");

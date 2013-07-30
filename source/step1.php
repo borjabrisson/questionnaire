@@ -9,17 +9,17 @@ class questionnaire_step1 extends bas_frmx_form{
 	public function OnLoad(){
 		parent::OnLoad();
 		
-		
 		$this->toolbar= new bas_frmx_toolbar('close');
 		$this->title= 'Cuestionario';
-		
+
+		$this->buttonbar = new bas_frmx_buttonbar();
+	}
+	
+	private function createQuery(){
 		$qry_maxlevel = "select max(level) as maxlevel from questions left join questionByquestionnaire on questionByquestionnaire.question = questions.id where questionByquestionnaire.questionnaire = {$this->questionnaire} ";
 		$qry= new bas_sql_myquery($qry_maxlevel);
 		
 		$this->maxlevel = $qry->result['maxlevel'];
-
-		$this->buttonbar = new bas_frmx_buttonbar();
-
 		$this->createFrame();
 	}
 
@@ -89,10 +89,9 @@ class questionnaire_step1 extends bas_frmx_form{
 		$proc = new bas_sqlx_connection();
 		$proc->call("hist","create",array($this->questionnaire));
 		if ($proc->success){
-// 			$hist = $proc->message;
 			foreach($this->answers as $item){
-				$proc->call("hist","answerInsert",array($item["id"],$item["answer"]));
-// 				$proc->call("hist","answerInsert",array($proc->message,$item["id"],$item["answer"]));
+				$proc->call("hist","answerInsert",array($proc->message["texts"]["message"],$item["id"],$item["answer"]));
+// 				$proc->call("hist","answerInsert",array($proc->getMessage(),$item["id"],$item["answer"]));
 				if (! $proc->success){
 					break;
 				}
@@ -103,13 +102,17 @@ class questionnaire_step1 extends bas_frmx_form{
 			}
 			else{
 				$proc->rollback();
-				$msg= new bas_html_messageBox(false, 'Atención!',$proc->message);
+				if ($proc->message["id"] == "dbGenericError") $message = $proc->message["texts"]["error"];
+				else $message = $proc->message["texts"]["message"];
+				$msg= new bas_html_messageBox(false, 'Atención!',$message);
 				echo $msg->jscommand();
 			}
 		}
 		else{
 			$proc->rollback();
-			$msg= new bas_html_messageBox(false, 'Atención!',$proc->message);
+			if ($proc->message["id"] == "dbGenericError") $message = $proc->message["texts"]["error"];
+			else $message = $proc->message["texts"]["message"];
+			$msg= new bas_html_messageBox(false, 'Atención!',$message);
 			echo $msg->jscommand();
 		}
 		$proc->close();
@@ -157,6 +160,14 @@ class questionnaire_step1 extends bas_frmx_form{
 				$this->frames["buttons"]->getObjComponent("item")->Reload();
 				$this->OnPaint("jscommand");				
 				break;
+			case 'ok': case 'cancel':
+                echo '{"command": "void"}';
+            break;
+            
+            case 'init':
+				$this->questionnaire= $data["questionnaire"];
+				$this->createQuery();
+			break;
 		}
 	}
 }

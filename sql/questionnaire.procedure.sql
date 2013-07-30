@@ -7,21 +7,21 @@ create procedure hist_create(
 	in iquestionnaire integer
 )
 begin
+	declare ihist integer;
 	insert into historic (questionnaire,creationTime,user) values (iquestionnaire,now(),substring_index(user(),'@',1));
+	SELECT LAST_INSERT_ID() into ihist;
 
-	select 0 as error;
+	select 0 as error, '$_hist' as message,ihist as hist;
 end$$
 
 drop procedure if exists hist_answerInsert$$
 create procedure hist_answerInsert(
+	in ihist integer,
 	in iquestion integer,
 	in ianswer varchar (120)
 )
 begin
-	declare ihist integer;
-	select max(hist) into ihist from historic where user = substring_index(user(),'@',1);
 	insert into answerRecord (hist,question,answer) values (ihist,iquestion,ianswer);
-
 	select 0 as error;
 end$$
 
@@ -109,7 +109,7 @@ create procedure disassociateQuestion(
 	in iquestion integer
 )
 begin
-	delete from questionByquestionnaire where question = iquestion and questionn =iquestionnaire;
+	delete from questionByquestionnaire where question = iquestion and questionnaire =iquestionnaire;
 	select 0 as error;
 end$$
 
