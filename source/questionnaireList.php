@@ -10,7 +10,8 @@ class questionnaire_questionnaireList extends bas_frmx_form {
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('question',"Preguntas");$this->buttonbar->addAction('borrar');$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');	$this->buttonbar->addAction('salir');
+		$this->buttonbar->addAction('question',"Preguntas");$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');
+		$this->buttonbar->addAction('borrar');	$this->buttonbar->addAction('salir');
 		
 		$list = new bas_frmx_listframe('lista_cuestionarios',"Cuestionarios Existentes");
 		

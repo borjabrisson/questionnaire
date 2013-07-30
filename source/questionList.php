@@ -10,9 +10,8 @@ class questionnaire_questionList extends bas_frmx_form {
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('answers',"Respuestas");	$this->buttonbar->addAction('borrar');
-		$this->buttonbar->addAction('nuevo');	$this->buttonbar->addAction('editar');
-		$this->buttonbar->addAction('salir');
+		$this->buttonbar->addAction('answers',"Respuestas");	$$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');
+		$this->buttonbar->addAction('borrar');	$this->buttonbar->addAction('salir');
 		
 		
 		$list = new bas_frmx_listframe('lista_preguntas',"Preguntas Existentes");
@@ -194,7 +193,7 @@ class questionnaire_questionList extends bas_frmx_form {
             case "desasociar":
 				if (isset($data['selected'])){
 					$data = $this->frames["lista_preguntas"]->getSelected();
-					$data = $data[0];
+// 					$data = $data[0];
                     $proc = new bas_sql_myprocedure('disassociateQuestion', array($data["questionnaire"],$data["questionID"]));
 					if ($proc->success){
 						$this->frames["lista_preguntas"]->Reload(true);

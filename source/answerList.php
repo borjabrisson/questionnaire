@@ -4,15 +4,16 @@ class questionnaire_answerList extends bas_frmx_form {
 	public function OnLoad(){
 		parent::OnLoad();
 		
-		$this->title = 'Preguntas';		
+		$this->title = 'Respuestas';
 	
 		$this->toolbar = new bas_frmx_toolbar('filtro,pdf,close');
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('borrar');$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');	$this->buttonbar->addAction('salir');
+		$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');
+		$this->buttonbar->addAction('borrar');	$this->buttonbar->addAction('salir');
 		
-		$list = new bas_frmx_listframe('lista_respuestas',"Preguntas Existentes");
+		$list = new bas_frmx_listframe('lista_respuestas',"Respuestas insertadas");
 		
 		$list->query->add('answerByquestion');
 		$list->query->setkey(array('question','answer'));
