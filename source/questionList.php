@@ -10,7 +10,7 @@ class questionnaire_questionList extends bas_frmx_form {
 		
 		// ### Definicion del buttonbar
 		$this->buttonbar= new bas_frmx_buttonbar();
-		$this->buttonbar->addAction('answers',"Respuestas");	$$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');
+		$this->buttonbar->addAction('answers',"Respuestas");	$this->buttonbar->addAction('nuevo'); $this->buttonbar->addAction('editar');
 		$this->buttonbar->addAction('borrar');	$this->buttonbar->addAction('salir');
 		
 		
