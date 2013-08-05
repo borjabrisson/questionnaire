@@ -1,6 +1,9 @@
 <?php
 class questionnaire_questionList extends bas_frmx_form {
 
+	private $questionnaire;
+	private $resultAction;
+	
 	public function OnLoad(){
 		parent::OnLoad();
 		
@@ -146,6 +149,7 @@ class questionnaire_questionList extends bas_frmx_form {
                 
 				$this->buttonbar= new bas_frmx_buttonbar();
 				 $this->buttonbar->addAction('order','Orden');$this->buttonbar->addAction('asociar','Asociar');$this->buttonbar->addAction('desasociar',"Desasociar");
+				 $this->questionnaire=$data["questionnaire"];
             break;
             case 'filtro':
 				$save[] =  array('id'=> "setfilterRecord", 'type'=>'command', 'caption'=>"Aceptar", 'description'=>"guardar");
@@ -172,6 +176,8 @@ class questionnaire_questionList extends bas_frmx_form {
             case "lookup":
                 $this->buttonbar= new bas_frmx_buttonbar();
                 $this->buttonbar->addAction('aceptar'); $this->buttonbar->addAction('cancelar');
+                if (!isset($data["resultAction"])) $data["resultAction"]="setvalues";
+                $this->resultAction = $data["resultAction"];
             break;
             
             case "order":
@@ -181,7 +187,7 @@ class questionnaire_questionList extends bas_frmx_form {
             case "aceptar":
                 if (isset($data['selected'])){
                     $aux = $this->frames["lista_preguntas"]->getSelected();
-                    return array("return","setvalues",$aux[0]);
+                    return array("return",$this->resultAction,$aux[0]);
                 }
                 else{
                     $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
@@ -208,6 +214,22 @@ class questionnaire_questionList extends bas_frmx_form {
                     echo $msg->jscommand();
                 }
             break;
+            
+            case "asociar":
+				return array('open','questionnaire_questionList','lookup',array("resultAction"=>"makeAsociate"));
+            break;
+            
+            case "makeAsociate":
+				$proc = new bas_sql_myprocedure('associateQuestion', array($this->questionnaire,$data["id"],"1"));
+				if ($proc->success){
+					$this->frames["lista_preguntas"]->Reload(true);
+				}
+				else{
+					$msg= new bas_html_messageBox(false, 'error', $proc->errormsg);
+					echo $msg->jscommand();
+				}
+            break;
+            
 		}
 	}
 }
