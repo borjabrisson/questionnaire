@@ -25,7 +25,7 @@ class questionnaire_recordList extends bas_frmx_form {
 		
 		$list->query->addrelated('historic','hist','answerRecord');
 		$list->query->addcol('questionnaire','cuestionario','historic',false);
-		$list->query->addcondition("questionnaire = 1");
+// 		$list->query->addcondition("questionnaire = 1");
 		$width=100; $height=1;
 		
 		$list->addComponent($width, $height,"hist");
@@ -60,6 +60,7 @@ class questionnaire_recordList extends bas_frmx_form {
             $rec = $ds->next();         
         }   
         $ds->close();
+         $this->frames["lista_cuestionarios"]->query->setfilter($questionnaire,"questionnaire");
         $this->frames["lista_cuestionarios"]->Reload();
 	}
 	

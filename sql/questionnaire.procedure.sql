@@ -114,6 +114,24 @@ begin
 end$$
 
 
+drop procedure if exists setOrderQuestion$$
+create procedure setOrderQuestion(
+	in iquestionnaire integer,
+	in iquestion integer,
+	in ilevel integer
+)
+begin
+	declare sameLevel integer;
+	select level into sameLevel from questionByquestionnaire where questionnaire =iquestionnaire and level = ilevel and question <> iquestion ;
+	if sameLevel is not null then
+		update questionByquestionnaire set level=level+1 where level >= ilevel and questionnaire =iquestionnaire;
+	end if;
+	update questionByquestionnaire set level=ilevel where question = iquestion and questionnaire =iquestionnaire;
+
+	select 0 as error;
+end$$
+
+
 select "answers Procedure" as step $$
 
 drop procedure if exists answer_new$$
@@ -124,10 +142,19 @@ create procedure answer_new(
 )
 begin
 	declare ianswer integer;
+	declare sameLevel integer;
 	select max(answer)+1 into ianswer from answerByquestion where question=iquestion;
 
 	if ianswer is null then
 		set ianswer = 1;
+	end if;
+	if ilevel is null then
+		set ilevel = ianswer;
+	else
+		select level into sameLevel from answerByquestion where level = ilevel and question=iquestion;
+		if sameLevel is not null then
+			update answerByquestion set level=level+1 where level >= ilevel and question=iquestion;
+		end if;
 	end if;
 	insert into answerByquestion (question,answer,caption,level) values (iquestion,ianswer,icaption,ilevel);
 	select 0 as error;
@@ -141,6 +168,13 @@ create procedure answer_edit(
 	in ilevel integer
 )
 begin
+	declare sameLevel integer;
+	
+	select level into sameLevel from answerByquestion where level = ilevel and question=iquestion;
+	if sameLevel is not null then
+		update answerByquestion set level=level+1 where level >= ilevel and question=iquestion;
+	end if;
+
 	update answerByquestion set  question=iquestion, answer=ianswer,caption=icaption,level=ilevel where question = iquestion and answer = ianswer;
 	select 0 as error;
 end$$

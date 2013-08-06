@@ -2,6 +2,7 @@
 class questionnaire_questionList extends bas_frmx_form {
 
 	private $questionnaire;
+	private $question;
 	private $resultAction;
 	
 	public function OnLoad(){
@@ -53,6 +54,8 @@ class questionnaire_questionList extends bas_frmx_form {
 
 		$this->frames['lista_preguntas']->query->addcondition("questionByquestionnaire.question = questions.id");
 		
+		$this->frames['lista_preguntas']->query->order= array("level"=>"asc", "id"=>"asc");
+		
 		$width=100; $height=1;
 
 		$this->frames['lista_preguntas']->addComponent($width, $height,"level");
@@ -80,7 +83,7 @@ class questionnaire_questionList extends bas_frmx_form {
 		
 		$query->addcol('level','Orden', 'item',true);
         
-        $save[] =  array('id'=> "setfilterRecord", 'type'=>'command', 'caption'=>"Aceptar", 'description'=>"guardar");
+        $save[] =  array('id'=> "makeOrder", 'type'=>'command', 'caption'=>"Aceptar", 'description'=>"guardar");
 		$save[] =  array('id'=> "cancel", 'type'=>'command', 'caption'=>"cancelar", 'description'=>"Cancelar");
 		
 		$login= new bas_html_filterBox($query, "Filtros",$save);
@@ -133,7 +136,7 @@ class questionnaire_questionList extends bas_frmx_form {
 
             case 'answers':
 				 if (isset($data['selected'])){
-					$data = $this->frames["lista_preguntas"]->getkeySelected();
+					$data = $this->frames["lista_preguntas"]->getSelected();
 					return array('open','questionnaire_answerList','setFilter',array("question"=>$data["id"]));
                 }
                 else{
@@ -181,13 +184,23 @@ class questionnaire_questionList extends bas_frmx_form {
             break;
             
             case "order":
-				$this->getOrder();
+				
+				if (isset($data['selected'])){
+                    $aux = $this->frames["lista_preguntas"]->getSelected();
+					$this->question = $aux["questionID"];
+					$this->questionnaire = $aux["questionnaire"];
+                    $this->getOrder();
+                }
+                else{
+                    $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
+                    echo $msg->jscommand();
+                }
             break;
             
             case "aceptar":
                 if (isset($data['selected'])){
                     $aux = $this->frames["lista_preguntas"]->getSelected();
-                    return array("return",$this->resultAction,$aux[0]);
+                    return array("return",$this->resultAction,$aux);
                 }
                 else{
                     $msg= new bas_html_messageBox(false, 'Atención', "Seleccione una tarea");
@@ -230,6 +243,18 @@ class questionnaire_questionList extends bas_frmx_form {
 				}
             break;
             
+            case "makeOrder":
+				if ($data["level"]!= ""){
+					$proc = new bas_sql_myprocedure('setOrderQuestion', array($this->questionnaire,$this->question,$data["level"]));
+					if ($proc->success){
+						$this->frames["lista_preguntas"]->Reload(true);
+					}
+					else{
+						$msg= new bas_html_messageBox(false, 'error', $proc->errormsg);
+						echo $msg->jscommand();
+					}
+				}
+            break;
 		}
 	}
 }

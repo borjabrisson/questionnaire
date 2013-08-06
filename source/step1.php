@@ -30,9 +30,10 @@ class questionnaire_step1 extends bas_frmx_form{
 		$this->currentQuestion = $qry->result["idquestion"];
 		$caption = $qry->result["question"];
 	
-		$answer = "select answer as answer from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.level = {$this->level} limit 1";
+		$answer = "select answer as answer from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.questionnaire = {$this->questionnaire} and questionByquestionnaire.level = {$this->level} limit 1";
 		
 		$qry= new bas_sql_myquery($answer);
+		
 		
 		if (is_null($qry->result['answer'])){ // Se trata de una pregunta a rellenar
 			$this->createCard($caption);
@@ -44,7 +45,7 @@ class questionnaire_step1 extends bas_frmx_form{
 	private function createGrid($caption){
 		
 		$this->buttonbar = new bas_frmx_buttonbar();
-		$answer = "select caption,answerByquestion.level from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.level = {$this->level} order by answerByquestion.level asc";
+		$answer = "select caption,answerByquestion.level from questionByquestionnaire left join answerByquestion on answerByquestion.question = questionByquestionnaire.question where questionByquestionnaire.questionnaire = {$this->questionnaire} and questionByquestionnaire.level = {$this->level} order by answerByquestion.level asc";
 		$options = array();
 		$ds = new bas_sql_myqrydataset($answer);
 		$rec = $ds->reset();
